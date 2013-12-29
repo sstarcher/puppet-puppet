@@ -4,11 +4,12 @@
 # Configuration file for puppet agent.
 #
 [main]
-    vardir  = <%= scope.lookupvar('puppet::vardir') %>
-    confdir = <%= scope.lookupvar('puppet::confdir') %>
-    logdir  = <%= scope.lookupvar('puppet::logdir') %>
-    rundir  = <%= scope.lookupvar('puppet::rundir') %>
-    ssldir  = <%= scope.lookupvar('puppet::ssldir') %>
+    vardir  = <%= @vardir %>
+    confdir = <%= @confdir %>
+    logdir  = <%= @logdir %>
+    rundir  = <%= @rundir %>
+    ssldir  = <%= @ssldir %>
+    <%= "modulepath = #{@modulepath}" if defined?(@modulepath) %>
 
 [agent]
     classfile = $vardir/classes.txt

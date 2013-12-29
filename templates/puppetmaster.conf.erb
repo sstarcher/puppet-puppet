@@ -4,23 +4,25 @@
 # Puppet master configuration file
 #
 [main]
-    vardir  = <%= scope.lookupvar('puppet::vardir') %>
-    confdir = <%= scope.lookupvar('puppet::confdir') %>
-    logdir  = <%= scope.lookupvar('puppet::logdir') %>
-    rundir  = <%= scope.lookupvar('puppet::rundir') %>
-    ssldir  = <%= scope.lookupvar('puppet::ssldir') %>
+  vardir  = <%= @vardir %>
+  confdir = <%= @confdir %>
+  logdir  = <%= @logdir %>
+  rundir  = <%= @rundir %>
+  ssldir  = <%= @ssldir %>
 
 [master]
     storeconfigs = <%= @storeconfigs %>
     storeconfigs_backend = <%= @storeconfigs_backend %>
     autosign = <%= @autosign %>
     allow_duplicate_certs = <%= @allow_duplicate_certs %>
-<% if @routes_enabled -%>
-    reports = <%= @reports %>
-<% end -%>
+    <%= "modulepath = #{@modulepath}" if defined?(@modulepath) %>
+    <%= "reports = #{@reports}" if defined?(@reports) %>
+    <%= "reporturl = #{@reporturl}" if defined?(@reporturl)  %>
+    <%= "node_terminus = #{@node_terminus}" if defined?(@node_terminus) %>
+    <%= "external_nodes = #{@external_nodes} if defined?(@external_nodes) %>
 
 <% @environments.each do |env| -%>
 [<%= env %>]
     manifest   = <%= @path_to_env_code %>/<%= env %>/manifests/site.pp
-    modulepath = <%= @path_to_env_code %>/<%= env %>/modules
+    modulepath = <%= @path_to_env_code %>/<%= env %>/modules:<%= @path_to_env_code %>/<%= env %>/thirdparty/modules
 <% end %>

@@ -17,7 +17,7 @@ class puppet::agent(
     $environment = 'production',
     $pluginsync  = true,
     $report      = true,
-    $runinterval = 1800,
+    $runinterval = 1800
   ) inherits puppet {
   case $::operatingsystem {
     Ubuntu: {

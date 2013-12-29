@@ -19,6 +19,7 @@ class puppet(
     $logdir  = '/var/log/puppet',
     $rundir  = '/var/run/puppet',
     $ssldir  = '$vardir/ssl',
+    $modulepath  = undef,
   ) {
   case $::osfamily {
     RedHat: {

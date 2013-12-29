@@ -9,64 +9,61 @@
 #
 # - Vaidas Jablonskis <jablonskis@gmail.com>
 #
-class puppet::master(
-    $enable                = true,
-    $ensure                = running,
-    $storeconfigs          = false,
-    $storeconfigs_backend  = 'puppetdb',
-    $reports               = 'store,puppetdb',
-    $autosign              = false,
-    $allow_duplicate_certs = false,
-    $environments          = [ 'development',
-                               'qa',
-                               'staging',
-                               'production' ],
-    $path_to_env_code      = '/etc/puppet/environments',
-    $path_to_hieradata     = '/etc/puppet/hieradata',
-    $hiera_hierarchy       = [ 'environments/%{environment}/nodes/%{fqdn}',
-                               'environments/%{environment}/roles/%{noderole}',
-                               'environments/%{environment}/sites/%{nodesite}',
-                               'environments/%{environment}/common' ],
-    $hiera_backends        = [ 'yaml' ],
-    $puppetdb_server       = $::fqdn,
-    $puppetdb_port         = '8081',
-    $routes_enabled        = false,
-  ) inherits puppet {
+class puppet::master (
+  $enable                = true,
+  $ensure                = running,
+  $storeconfigs          = false,
+  $storeconfigs_backend  = 'puppetdb',
+  $reports               = undef,
+  $reporturl             = undef,
+  $node_terminus         = undef,
+  $external_nodes        = undef,
+  $autosign              = false,
+  $allow_duplicate_certs = false,
+  $environments          = ['development', 'qa', 'staging', 'production'],
+  $path_to_env_code      = '/etc/puppet/environments',
+  $path_to_hieradata     = '/etc/puppet/hieradata',
+  $hiera_hierarchy       = [
+    'environments/%{environment}/nodes/%{fqdn}',
+    'environments/%{environment}/roles/%{noderole}',
+    'environments/%{environment}/sites/%{nodesite}',
+    'environments/%{environment}/common'],
+  $hiera_backends        = ['yaml'],
+  $puppetdb_server       = $::fqdn,
+  $puppetdb_port         = '8081',
+  $routes_enabled        = false,
+  $packages              = installed,) inherits puppet {
   case $::osfamily {
-    RedHat: {
+    RedHat  : {
       $sysconfig_file = '/etc/sysconfig/puppetmaster'
-      $package_name   = 'puppet-server'
+      $package_name = 'puppet-server'
     }
-    Debian: {
+    Debian  : {
       $sysconfig_file = '/etc/default/puppetmaster'
-      $package_name   = 'puppetmaster'
+      $package_name = 'puppetmaster'
     }
-    default: {
+    default : {
       # nothing
     }
   }
 
-  $service_name             = 'puppetmaster'
-  $config_file              = '/etc/puppet/puppetmaster.conf'
-  $hiera_config_file        = '/etc/puppet/hiera.yaml'
-  $hiera_conf_template      = 'hiera.yaml.erb'
-  $conf_template            = 'puppetmaster.conf.erb'
-  $puppetdb_config_file     = '/etc/puppet/puppetdb.conf'
-  $puppetdb_conf_template   = 'puppetdb.conf.erb'
-  $routes_config_file       = '/etc/puppet/routes.yaml'
-  $routes_conf_template     = 'routes.yaml.erb'
-  $sysconfig_template       = 'sysconfig_master.erb'
-  $pdb_terminus_package     = 'puppetdb-terminus'
+  $service_name = 'puppetmaster'
+  $config_file = '/etc/puppet/puppetmaster.conf'
+  $hiera_config_file = '/etc/puppet/hiera.yaml'
+  $hiera_conf_template = 'hiera.yaml.erb'
+  $conf_template = 'puppetmaster.conf.erb'
+  $puppetdb_config_file = '/etc/puppet/puppetdb.conf'
+  $puppetdb_conf_template = 'puppetdb.conf.erb'
+  $routes_config_file = '/etc/puppet/routes.yaml'
+  $routes_conf_template = 'routes.yaml.erb'
+  $sysconfig_template = 'sysconfig_master.erb'
+  $pdb_terminus_package = 'puppetdb-terminus'
 
   # Installs puppet-server package
-  package { $package_name:
-    ensure => installed,
-  }
+  package { $package_name: ensure => $packages, }
 
   # Installs puppetdb-terminus package
-  package { $pdb_terminus_package:
-    ensure => installed,
-  }
+  package { $pdb_terminus_package: ensure => $packages, }
 
   # Manages puppetmaster service
   service { $service_name:
@@ -74,7 +71,7 @@ class puppet::master(
     enable     => $enable,
     hasrestart => true,
     hasstatus  => true,
-    subscribe  => File[[$config_file],[$sysconfig_file],[$hiera_config_file]],
+    subscribe  => File[[$config_file], [$sysconfig_file], [$hiera_config_file]],
     require    => Package[$package_name],
   }
 
@@ -99,13 +96,13 @@ class puppet::master(
   }
 
   # Where to store non-sensitive hiera data per environment
-  file { "${path_to_hieradata}/environments":
-    ensure  => directory,
-    owner   => 'root',
-    group   => 'puppet',
-    mode    => '0750',
-    require => Package[$package_name],
-  }
+  #file { "${path_to_hieradata}/environments":
+  #  ensure  => directory,
+  #  owner   => 'root',
+  #  group   => 'puppet',
+  #  mode    => '0750',
+  #  require => Package[$package_name],
+  #}
 
   # PuppetDB configuration file for puppetmaster
   file { $puppetdb_config_file:
@@ -130,8 +127,11 @@ class puppet::master(
 
   # Puppetmaster routes.yaml configuration file will only be used if
   # $routes_enabled is set to true
-  if $routes_enabled {$routes_file = 'file'}
-  else {$routes_file = 'absent'}
+  if $routes_enabled {
+    $routes_file = 'file'
+  } else {
+    $routes_file = 'absent'
+  }
 
   file { $routes_config_file:
     ensure  => $routes_file,
