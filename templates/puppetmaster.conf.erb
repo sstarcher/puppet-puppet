@@ -19,7 +19,7 @@
     <%= "reports = #{@reports}" if defined?(@reports) %>
     <%= "reporturl = #{@reporturl}" if defined?(@reporturl)  %>
     <%= "node_terminus = #{@node_terminus}" if defined?(@node_terminus) %>
-    <%= "external_nodes = #{@external_nodes} if defined?(@external_nodes) %>
+    <%= "external_nodes = #{@external_nodes}" if defined?(@external_nodes) %>
 
 <% @environments.each do |env| -%>
 [<%= env %>]
