@@ -15,6 +15,7 @@ class puppet::agent(
     $ensure      = running,
     $master      = 'puppet',
     $environment = 'production',
+    $ordering      = 'title-hash',
     $pluginsync  = true,
     $report      = true,
     $runinterval = 1800
